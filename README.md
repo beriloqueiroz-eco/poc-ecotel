@@ -14,6 +14,12 @@
   curl  'http://localhost:8080/hello'
  ```
 
+ ou
+
+ ```bash
+  go run test/main.go
+ ```
+
 - to see zpkin:
   - <http://localhost:9411/>
 - to see jeager:
