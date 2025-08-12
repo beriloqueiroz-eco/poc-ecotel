@@ -1,0 +1,19 @@
+apiVersion: 1
+datasources:
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    jsonData:
+      tracesDataSource: true
+  - name: Zipkin
+    type: zipkin
+    access: proxy
+    url: http://zipkin-all-in-one:9411
+    jsonData:
+      tracesDataSource: true
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true

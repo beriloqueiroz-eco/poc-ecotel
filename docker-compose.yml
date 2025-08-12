@@ -16,7 +16,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
       INSECURE_OTEL_COLLECTOR: true
     ports:
-      - "8080:8080"
+      - "8081:8081"
     depends_on:
       - otel-collector
 
@@ -35,7 +35,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
       INSECURE_OTEL_COLLECTOR: true
     ports:
-      - "8081:8081"
+      - "8082:8082"
     depends_on:
       - otel-collector
 
@@ -54,7 +54,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
       INSECURE_OTEL_COLLECTOR: true
     ports:
-      - "8082:8082"
+      - "8083:8083"
     depends_on:
       - otel-collector
 
@@ -101,10 +101,12 @@ services:
     depends_on:
       - prometheus
       - jaeger # ou tempo, zipkin, etc
+      - zipkin-all-in-one
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
 
 volumes:
   grafana-data:
