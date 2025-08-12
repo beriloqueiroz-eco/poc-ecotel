@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  service-a:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: "service-a"
+      WEB_SERVER_PORT: ":8081"
+      SERVICE2_URL: "http://service-b:8082"
+      END: 0
+      TEST_DELAY: 1
+      OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
+      INSECURE_OTEL_COLLECTOR: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - otel-collector
+
+  service-b:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: "service-b"
+      WEB_SERVER_PORT: ":8082"
+      SERVICE2_URL: "http://service-c:8083"
+      END: 0
+      TEST_DELAY: 2
+      OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
+      INSECURE_OTEL_COLLECTOR: true
+    ports:
+      - "8081:8081"
+    depends_on:
+      - otel-collector
+
+  service-c:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: "service-c"
+      WEB_SERVER_PORT: ":8083"
+      SERVICE2_URL: "http://service-a:8081"
+      END: 1
+      TEST_DELAY: 2
+      OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
+      INSECURE_OTEL_COLLECTOR: true
+    ports:
+      - "8082:8082"
+    depends_on:
+      - otel-collector
+
+  zipkin-all-in-one:
+    image: openzipkin/zipkin:latest
+    environment:
+      - JAVA_OPTS=-Xms1024m -Xmx1024m -XX:+ExitOnOutOfMemoryError
+    restart: always
+    ports:
+      - "9411:9411"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./.docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888"
+      - "8889:8889"
+      - "13133:13133"
+      - "4317:4317"
+      - "55679:55679"
+    depends_on:
+      - zipkin-all-in-one
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp" # UDP port for Jaeger agent
+      - "16686:16686" # Web UI
+      - "14268:14268" # HTTP port for spans
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+      
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - jaeger # ou tempo, zipkin, etc
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  grafana-data:
+        
