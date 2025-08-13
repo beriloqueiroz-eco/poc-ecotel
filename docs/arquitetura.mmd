@@ -1,0 +1,26 @@
+flowchart TD
+    subgraph Aplicação
+        app[Aplicação Go]
+    end
+
+    subgraph Observabilidade
+        otel[OpenTelemetry Collector]
+        jaeger[Jaeger]
+        prometheus[Prometheus]
+        fluentbit[Fluent Bit]
+        loki[Loki]
+    end
+
+    subgraph Visualização
+        grafana[Grafana]
+    end
+
+    app -- Métricas/Traces --> otel
+    otel -- Traces --> jaeger
+    otel -- Métricas --> prometheus
+    app -- Logs --> fluentbit
+    fluentbit -- Logs --> loki
+
+    grafana  -.-> prometheus
+    grafana  -.-> jaeger
+    grafana  -.-> loki
