@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tradersclub/poc-ecotel/pkg/ecotel"
 )
 
 type HelloHandler struct {
@@ -19,12 +20,13 @@ type HelloHandler struct {
 func (h *HelloHandler) Handle(c *gin.Context) {
 	n := rand.Intn(3000-1000+1) + 1000
 	time.Sleep(time.Millisecond * time.Duration(n))
-
+	ecotel.Info(c.Request.Context(), "Handling request for service")
 	if h.IsEnd == 1 {
-		c.String(http.StatusOK, "Response from Service %s, is the end", h.ServiceName)
+		c.String(http.StatusOK, "Response from Service, is the end")
 		return
 	}
 	req, err := http.NewRequestWithContext(c.Request.Context(), "GET", h.ServiceUrlTo+"/hello", nil)
+	ecotel.Info(c.Request.Context(), "Created request for service")
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error creating request: %v", err)
 		return
@@ -34,6 +36,8 @@ func (h *HelloHandler) Handle(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Error calling Service: %v", err)
 		return
 	}
+	ecotel.Error(c.Request.Context(), "Received response from service")
+
 	defer resp.Body.Close()
 
 	time.Sleep(time.Second * time.Duration(h.Delay))

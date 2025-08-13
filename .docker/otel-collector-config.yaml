@@ -3,6 +3,12 @@ receivers:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  filelog:
+    include_file_path: true
+    include: [/var/log/service-a/*.log,/var/log/service-b/*.log,/var/log/service-c/*.log]   # Caminho dos arquivos de log
+    start_at: end
 
 extensions:
   health_check:
@@ -12,15 +18,16 @@ extensions:
     endpoint: :55679
 
 exporters:
-  zipkin:
-    endpoint: "http://zipkin-all-in-one:9411/api/v2/spans"
-    format: proto
   otlp/jaeger:
     endpoint: "jaeger:4317"
     tls:
       insecure: true
   prometheus:
     endpoint: "0.0.0.0:8889"
+  otlphttp/logs:
+    endpoint: "http://loki:3100/otlp"
+    tls:
+      insecure: true
 
 processors:
   batch:
@@ -31,7 +38,11 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [zipkin, otlp/jaeger]
+      exporters: [otlp/jaeger]
     metrics:
       receivers: [otlp]
+      processors: [batch]
       exporters: [prometheus]
+    logs:
+      receivers: [filelog]
+      exporters: [otlphttp/logs]

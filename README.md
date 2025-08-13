@@ -5,6 +5,7 @@
 - to run applications, service A: 8080 and service B: 8081
 
   ```bash
+    docker compose build --build-arg GITHUB_TOKEN=<token_to_private_repos>
     docker compose up -d
   ```
 

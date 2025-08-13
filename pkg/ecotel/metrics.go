@@ -12,6 +12,7 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -70,17 +71,49 @@ func (o *MetricEcotel) GinMetricsMiddleware() gin.HandlerFunc {
 		c.Next()
 		duration := time.Since(start).Seconds()
 
+		// Extrai trace_id e span_id do contexto, se houver
+		spanCtx := trace.SpanContextFromContext(c.Request.Context())
+		traceID := ""
+		spanID := ""
+		if spanCtx.HasTraceID() {
+			traceID = spanCtx.TraceID().String()
+		}
+		if spanCtx.HasSpanID() {
+			spanID = spanCtx.SpanID().String()
+		}
+
 		attrs := []attribute.KeyValue{
 			attribute.String("method", c.Request.Method),
 			attribute.String("route", c.FullPath()),
 			attribute.Int("status", c.Writer.Status()),
 		}
+		if traceID != "" {
+			attrs = append(attrs, attribute.String("trace_id", traceID))
+		}
+		if spanID != "" {
+			attrs = append(attrs, attribute.String("span_id", spanID))
+		}
 
 		requestCounter.Add(c.Request.Context(), 1, metric.WithAttributes(attrs...))
 		latencyHistogram.Record(c.Request.Context(), duration, metric.WithAttributes(attrs...))
 
-		methodCounter.Add(c.Request.Context(), 1, metric.WithAttributes(attribute.String("method", c.Request.Method)))
-		routeCounter.Add(c.Request.Context(), 1, metric.WithAttributes(attribute.String("route", c.FullPath())))
+		methodAttrs := []attribute.KeyValue{attribute.String("method", c.Request.Method)}
+		if traceID != "" {
+			methodAttrs = append(methodAttrs, attribute.String("trace_id", traceID))
+		}
+		if spanID != "" {
+			methodAttrs = append(methodAttrs, attribute.String("span_id", spanID))
+		}
+		methodCounter.Add(c.Request.Context(), 1, metric.WithAttributes(methodAttrs...))
+
+		routeAttrs := []attribute.KeyValue{attribute.String("route", c.FullPath())}
+		if traceID != "" {
+			routeAttrs = append(routeAttrs, attribute.String("trace_id", traceID))
+		}
+		if spanID != "" {
+			routeAttrs = append(routeAttrs, attribute.String("span_id", spanID))
+		}
+		routeCounter.Add(c.Request.Context(), 1, metric.WithAttributes(routeAttrs...))
 
 		if c.Writer.Status() >= 400 {
 			errorCounter.Add(c.Request.Context(), 1, metric.WithAttributes(attrs...))

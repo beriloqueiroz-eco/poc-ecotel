@@ -2,18 +2,20 @@ apiVersion: 1
 datasources:
   - name: Jaeger
     type: jaeger
+    uid: jaeger
     access: proxy
     url: http://jaeger:16686
-    jsonData:
-      tracesDataSource: true
-  - name: Zipkin
-    type: zipkin
-    access: proxy
-    url: http://zipkin-all-in-one:9411
-    jsonData:
-      tracesDataSource: true
+    isDefault: true
   - name: Prometheus
     type: prometheus
+    uid: prometheus
     access: proxy
     url: http://prometheus:9090
-    isDefault: true
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      timeout: 60
+      maxLines: 1000

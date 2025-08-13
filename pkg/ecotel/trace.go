@@ -37,7 +37,6 @@ func NewTraceEcotel(collectorUrl, serviceName string) *TraceEcotel {
 }
 
 func (o *TraceEcotel) InitTracerProvider(ctx context.Context, insecure bool) (func(context.Context) error, error) {
-	fmt.Printf("[otel debug] serviceName: %q\n", o.serviceName)
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 	secureOption := otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
 	if insecure {

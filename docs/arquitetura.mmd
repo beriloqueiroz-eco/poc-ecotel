@@ -1,13 +1,17 @@
 flowchart TD
+    subgraph Net 
+        istio[Istio]
+    end
+
     subgraph Aplicação
         app[Aplicação Go]
+        file[File logs]
     end
 
     subgraph Observabilidade
         otel[OpenTelemetry Collector]
         jaeger[Jaeger]
         prometheus[Prometheus]
-        fluentbit[Fluent Bit]
         loki[Loki]
     end
 
@@ -15,11 +19,14 @@ flowchart TD
         grafana[Grafana]
     end
 
-    app -- Métricas/Traces --> otel
+    app -- Logs --> file
+    istio -- Métricas/Traces --> app
+    istio -- Métricas/Traces --> otel
+    file -- Logs --> otel
     otel -- Traces --> jaeger
     otel -- Métricas --> prometheus
-    app -- Logs --> fluentbit
-    fluentbit -- Logs --> loki
+    otel -- Logs --> loki
+    
 
     grafana  -.-> prometheus
     grafana  -.-> jaeger
