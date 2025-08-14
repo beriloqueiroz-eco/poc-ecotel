@@ -6,6 +6,27 @@ datasources:
     access: proxy
     url: http://jaeger:16686
     isDefault: true
+    jsonData:
+      tracesToLogsV2:
+        customQuery: true
+        datasourceUid: loki
+        filterBySpanID: false
+        filterByTraceID: false
+        query: '{service_name=~".+"} | traceId="$${__trace.traceId}"'
+        spanEndTimeShift: 2m
+        spanStartTimeShift: -2m
+        tags:
+          - key: ""
+            value: ""
+      tracesToMetrics:
+        datasourceUid: prometheus
+        queries:
+          - name: Metrics By Trace
+            query: '{trace_id="$${__trace.traceId}"}'
+          - name: Metrics By Span
+            query: '{span_id="$${__span.spanId}"}'
+        spanEndTimeShift: 2m
+        spanStartTimeShift: -2m
   - name: Prometheus
     type: prometheus
     uid: prometheus
@@ -16,6 +37,3 @@ datasources:
     uid: loki
     access: proxy
     url: http://loki:3100
-    jsonData:
-      timeout: 60
-      maxLines: 1000

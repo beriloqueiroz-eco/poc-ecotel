@@ -20,6 +20,7 @@ type MetricEcotel struct {
 	collectorUrl   string
 	serviceName    string
 	metricProvider *sdkmetric.MeterProvider
+	meter          metric.Meter
 }
 
 func NewMetricEcotel(collectorUrl, serviceName string) *MetricEcotel {
@@ -55,16 +56,16 @@ func (o *MetricEcotel) InitMeterProvider(insecure bool) error {
 	)
 	otel.SetMeterProvider(mp)
 	o.metricProvider = mp
+	o.meter = o.metricProvider.Meter(o.serviceName)
 	return nil
 }
 
 func (o *MetricEcotel) GinMetricsMiddleware() gin.HandlerFunc {
-	meter := o.metricProvider.Meter(o.serviceName)
-	requestCounter, _ := meter.Int64Counter("http_requests_total")
-	latencyHistogram, _ := meter.Float64Histogram("http_request_duration_seconds")
-	errorCounter, _ := meter.Int64Counter("http_requests_errors_total")
-	methodCounter, _ := meter.Int64Counter("http_requests_by_method_total")
-	routeCounter, _ := meter.Int64Counter("http_requests_by_route_total")
+	requestCounter, _ := o.meter.Int64Counter("http_requests_total")
+	latencyHistogram, _ := o.meter.Float64Histogram("http_request_duration_seconds")
+	errorCounter, _ := o.meter.Int64Counter("http_requests_errors_total")
+	methodCounter, _ := o.meter.Int64Counter("http_requests_by_method_total")
+	routeCounter, _ := o.meter.Int64Counter("http_requests_by_route_total")
 
 	return func(c *gin.Context) {
 		start := time.Now()

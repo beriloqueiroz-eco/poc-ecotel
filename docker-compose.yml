@@ -24,6 +24,7 @@ services:
       - ./logs/service-a:/var/log
     depends_on:
       - otel-collector
+      - db
 
   service-b:
     build:
@@ -48,6 +49,7 @@ services:
       - ./logs/service-b:/var/log
     depends_on:
       - otel-collector
+      - db
 
   service-c:
     build:
@@ -72,6 +74,7 @@ services:
       - ./logs/service-c:/var/log
     depends_on:
       - otel-collector
+      - db
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -119,13 +122,27 @@ services:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
   
   loki:
-    image: grafana/loki:main-100e259
+    image: grafana/loki:latest
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml
     restart: unless-stopped
+
+  db:
+    image: postgres:latest
+    container_name: db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
+    restart: on-failure
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.docker/db/init:/docker-entrypoint-initdb.d
+      - ./.docker/db/data:/data
 
 volumes:
   grafana-data:

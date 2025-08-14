@@ -2,6 +2,8 @@ package ecotel
 
 import (
 	"context"
+	"log/slog"
+	"os"
 
 	"go.opentelemetry.io/otel/trace"
 )
@@ -14,6 +16,16 @@ type Logger interface {
 	Fatal(msg string, fields ...any)
 }
 
+type slogAdapter struct {
+	slog *slog.Logger
+}
+
+func (s *slogAdapter) Info(msg string, fields ...any)  { s.slog.Info(msg, fields...) }
+func (s *slogAdapter) Error(msg string, fields ...any) { s.slog.Error(msg, fields...) }
+func (s *slogAdapter) Debug(msg string, fields ...any) { s.slog.Debug(msg, fields...) }
+func (s *slogAdapter) Warn(msg string, fields ...any)  { s.slog.Warn(msg, fields...) }
+func (s *slogAdapter) Fatal(msg string, fields ...any) { s.slog.Error(msg, fields...); os.Exit(1) }
+
 var logger Logger
 
 var logServiceName string
@@ -24,6 +36,12 @@ func SetLogServiceName(name string) {
 
 func SetLogger(l Logger) {
 	logger = l
+}
+
+func UseSlog() {
+	s := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{}))
+	slog.SetDefault(s)
+	logger = &slogAdapter{slog: s}
 }
 
 func Info(ctx context.Context, msg string, fields ...interface{}) {
@@ -52,8 +70,7 @@ func Info(ctx context.Context, msg string, fields ...interface{}) {
 		append(fields,
 			"traceId", traceId,
 			"spanID", spanId,
-			"service.name", logServiceName,
-			"resource.service.name", logServiceName,
+			"service_name", logServiceName,
 		)...,
 	)
 }
@@ -84,8 +101,7 @@ func Error(ctx context.Context, msg string, fields ...interface{}) {
 		append(fields,
 			"traceId", traceId,
 			"spanID", spanId,
-			"service.name", logServiceName,
-			"resource.service.name", logServiceName,
+			"service_name", logServiceName,
 		)...,
 	)
 }
@@ -116,8 +132,7 @@ func Debug(ctx context.Context, msg string, fields ...interface{}) {
 		append(fields,
 			"traceId", traceId,
 			"spanID", spanId,
-			"service.name", logServiceName,
-			"resource.service.name", logServiceName,
+			"service_name", logServiceName,
 		)...,
 	)
 }
@@ -148,8 +163,7 @@ func Warn(ctx context.Context, msg string, fields ...interface{}) {
 		append(fields,
 			"traceId", traceId,
 			"spanID", spanId,
-			"service.name", logServiceName,
-			"resource.service.name", logServiceName,
+			"service_name", logServiceName,
 		)...,
 	)
 }
@@ -180,8 +194,7 @@ func Fatal(ctx context.Context, msg string, fields ...interface{}) {
 		append(fields,
 			"traceId", traceId,
 			"spanID", spanId,
-			"service.name", logServiceName,
-			"resource.service.name", logServiceName,
+			"service_name", logServiceName,
 		)...,
 	)
 }

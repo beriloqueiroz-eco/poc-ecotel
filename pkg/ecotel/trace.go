@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/exaring/otelpgx"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
@@ -78,6 +80,27 @@ func (o *TraceEcotel) NewInstrumentedClientWithTransport(transport http.RoundTri
 
 func (o *TraceEcotel) GinMiddleware() gin.HandlerFunc {
 	return otelgin.Middleware(o.serviceName)
+}
+
+func (o *TraceEcotel) InitOtelPgxTracer(ctx context.Context, connString string) (*pgxpool.Pool, error) {
+	cfg, err := pgxpool.ParseConfig(connString)
+	if err != nil {
+		return nil, fmt.Errorf("create connection pool: %w", err)
+	}
+
+	cfg.ConnConfig.Tracer = otelpgx.NewTracer()
+
+	conn, err := pgxpool.NewWithConfig(ctx, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("connect to database: %w", err)
+	}
+
+	if err := otelpgx.RecordStats(conn); err != nil {
+		return nil, fmt.Errorf("unable to record database stats: %w", err)
+	}
+
+	return conn, nil
+
 }
 
 func MainExample() {

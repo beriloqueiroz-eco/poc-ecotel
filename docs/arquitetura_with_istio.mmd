@@ -1,12 +1,11 @@
 flowchart TD
-    subgraph Aplicação 1
-        app1[Aplicação Go]
-        file1[File logs]
+    subgraph Net 
+        istio[Istio]
     end
 
-    subgraph Aplicação 2
-        app2[Aplicação Go]
-        file2[File logs]
+    subgraph Aplicação
+        app[Aplicação Go]
+        file[File logs]
     end
 
     subgraph Observabilidade
@@ -20,17 +19,14 @@ flowchart TD
         grafana[Grafana]
     end
 
-    app1 -- Logs --> file1
-    app1 -- Métricas/Traces --> otel
-    file1 -- Logs --> otel    
-
-    app2 -- Logs --> file2
-    app2 -- Métricas/Traces --> otel
-    file2 -- Logs --> otel
-
+    app -- Logs --> file
+    istio -- Métricas/Traces --> app
+    istio -- Métricas/Traces --> otel
+    file -- Logs --> otel
     otel -- Traces --> jaeger
     otel -- Métricas --> prometheus
     otel -- Logs --> loki
+    
 
     grafana  -.-> prometheus
     grafana  -.-> jaeger

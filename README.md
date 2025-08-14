@@ -28,6 +28,6 @@
 - to see grafana
   - <http://localhost:3000>
 
-## todo
+## desenho
 
-- logs
+![alt text](docs/observability_stack.png)

@@ -8,13 +8,10 @@ import (
 	"syscall"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tradersclub/encelado-utilities-go/logger"
 	config "github.com/tradersclub/poc-ecotel/configs"
 	"github.com/tradersclub/poc-ecotel/internal"
 	"github.com/tradersclub/poc-ecotel/pkg/ecotel"
 )
-
-type ctxKey string
 
 func main() {
 	configs, err := config.LoadConfig([]string{"."})
@@ -27,11 +24,8 @@ func main() {
 	portGin := configs.WebServerPort
 	insecure := configs.InsecureOtelCollector
 
-	log := logger.NewZapLogger(true, "info")
-	logger.SetGlobal(log)
-
 	ecotel.SetLogServiceName(serviceName)
-	ecotel.SetLogger(log)
+	ecotel.UseSlog()
 
 	ctx := context.Background()
 
@@ -52,12 +46,39 @@ func main() {
 	otelMetrics := ecotel.NewMetricEcotel(collectorUrl, serviceName)
 	otelMetrics.InitMeterProvider(insecure)
 	ginServer.Use(otelMetrics.GinMetricsMiddleware())
+	dbConfig := internal.DBConfig{
+		Host:     "db",
+		Port:     5432,
+		Database: "database",
+		User:     "user",
+		Password: "password",
+		SSLMode:  "disable",
+	}
 
+	url := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		dbConfig.User,
+		dbConfig.Password,
+		dbConfig.Host,
+		dbConfig.Port,
+		dbConfig.Database,
+		dbConfig.SSLMode)
+
+	pool, err := otelTracer.InitOtelPgxTracer(ctx, url)
+	if err != nil {
+		ecotel.Error(ctx, "Error initializing database connection pool:", err)
+		panic(err)
+	}
+	db, err := internal.NewDB(ctx, dbConfig, pool)
+	if err != nil {
+		ecotel.Error(ctx, "Error connecting to database:", err)
+		panic(err)
+	}
 	helloHandler := &internal.HelloHandler{
 		IsEnd:        configs.IsEnd,
 		Delay:        configs.TestDelay,
 		ServiceName:  configs.ServiceName,
 		ServiceUrlTo: configs.ServiceBUrl,
+		Repo:         internal.NewRepository(db),
 	}
 
 	ginServer.GET("/hello", helloHandler.Handle)
