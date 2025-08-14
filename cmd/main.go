@@ -27,10 +27,12 @@ func main() {
 	portGin := configs.WebServerPort
 	insecure := configs.InsecureOtelCollector
 
-	ecotel.SetLogServiceName(serviceName)
-
 	log := logger.NewZapLogger(true, "info")
 	logger.SetGlobal(log)
+
+	ecotel.SetLogServiceName(serviceName)
+	ecotel.SetLogger(log)
+
 	ctx := context.Background()
 
 	err = redirectStdoutStderr("/var/log/app.log")

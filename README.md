@@ -1,4 +1,4 @@
-# OpenTelemetry + zipkin, jeager, prometheus, grafana
+# OpenTelemetry, jeager, prometheus, loki grafana
 
 - service A -> service B -> service C
 
@@ -12,7 +12,7 @@
 - to run request: POST to <http://locahost:8080>
 
  ```bash
-  curl  'http://localhost:8080/hello'
+  curl  'http://localhost:8081/hello'
  ```
 
  ou
@@ -21,8 +21,6 @@
   go run test/main.go
  ```
 
-- to see zpkin:
-  - <http://localhost:9411/>
 - to see jeager:
   - <http://localhost:16686/>
 - to see prometheus:
