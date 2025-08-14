@@ -1,5 +1,0 @@
-server:
-  persistentVolume:
-    enabled: true
-    storageClass: gp2 # EBS padrão AWS
-    size: 20Gi

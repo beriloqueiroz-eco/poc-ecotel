@@ -2,7 +2,7 @@ apiVersion: jaegertracing.io/v1
 kind: Jaeger
 metadata:
   name: jaeger
-  namespace: observability
+  namespace: monitoring
 spec:
   strategy: production
   collector:
@@ -30,3 +30,5 @@ spec:
   query:
     options:
       log-level: debug
+    service:
+      type: LoadBalancer
