@@ -153,3 +153,35 @@ func Warn(ctx context.Context, msg string, fields ...interface{}) {
 		)...,
 	)
 }
+
+func Fatal(ctx context.Context, msg string, fields ...interface{}) {
+	traceIdCtx := ctx.Value("traceId")
+	spanIdCtx := ctx.Value("spanId")
+
+	traceId := ""
+	spanId := ""
+	if spanIdCtx != nil {
+		spanId = spanIdCtx.(string)
+	}
+	if traceIdCtx != nil {
+		traceId = traceIdCtx.(string)
+	}
+
+	spanCtx := trace.SpanContextFromContext(ctx)
+	if spanCtx.IsValid() {
+		if spanId == "" {
+			spanId = spanCtx.SpanID().String()
+		}
+		if traceId == "" {
+			traceId = spanCtx.TraceID().String()
+		}
+	}
+	logger.Fatal(msg,
+		append(fields,
+			"traceId", traceId,
+			"spanID", spanId,
+			"service.name", logServiceName,
+			"resource.service.name", logServiceName,
+		)...,
+	)
+}

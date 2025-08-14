@@ -12,40 +12,7 @@ helm install opentelemetry-operator open-telemetry/opentelemetry-operator --name
 
 ## Criando um Collector
 
-Crie um arquivo `otel-collector.yaml`:
-
-```yaml
-apiVersion: opentelemetry.io/v1alpha1
-kind: OpenTelemetryCollector
-metadata:
-  name: otel-collector
-  namespace: observability
-spec:
-  mode: deployment
-  config: |
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-          http:
-    exporters:
-      prometheus:
-        endpoint: "0.0.0.0:8889"
-      jaeger:
-        endpoint: "jaeger-all-in-one:14250"
-        tls:
-          insecure: true
-    service:
-      pipelines:
-        traces:
-          receivers: [otlp]
-          exporters: [jaeger]
-        metrics:
-          receivers: [otlp]
-          exporters: [prometheus]
-```
-
-E aplique:
+Crie um arquivo `otel-collector.yaml` e aplique:
 
 ```sh
 kubectl apply -f otel-collector.yaml

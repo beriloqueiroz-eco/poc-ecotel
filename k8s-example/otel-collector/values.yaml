@@ -1,0 +1,66 @@
+# values.yaml para OpenTelemetry Collector via Helm
+# Inclui a configuração customizada baseada no otel-collector.yaml
+
+mode: deployment
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+    filelog:
+      include_file_path: true
+      include: [/var/log/service-a/*.log, /var/log/service-b/*.log, /var/log/service-c/*.log]
+      start_at: end
+  extensions:
+    health_check: {}
+    pprof:
+      endpoint: :1888
+    zpages:
+      endpoint: :55679
+  exporters:
+    otlp/jaeger:
+      endpoint: "jaeger:4317"
+      tls:
+        insecure: true
+    prometheus:
+      endpoint: "0.0.0.0:8889"
+    otlphttp/logs:
+      endpoint: "http://loki:3100/otlp"
+      tls:
+        insecure: true
+  processors:
+    batch: {}
+  service:
+    extensions: [pprof, zpages, health_check]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/jaeger]
+      metrics:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [prometheus]
+      logs:
+        receivers: [filelog]
+        exporters: [otlphttp/logs]
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Storage opcional, se necessário para buffer/logs
+# persistence:
+#   enabled: true
+#   storageClassName: gp2
+#   accessModes:
+#     - ReadWriteOnce
+#   size: 5Gi

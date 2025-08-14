@@ -1,0 +1,32 @@
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: jaeger
+  namespace: observability
+spec:
+  strategy: production
+  collector:
+    replicas: 2
+    service:
+      otlp:
+        grpc:
+          enabled: true
+        http:
+          enabled: true
+  storage:
+    type: elasticsearch
+    options:
+      es:
+        server-urls: http://elasticsearch:9200
+    volumeClaimTemplate:
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: gp3
+  ingress:
+    enabled: false
+  query:
+    options:
+      log-level: debug
