@@ -15,9 +15,6 @@ datasources:
         query: '{service_name=~".+"} | traceId="$${__trace.traceId}"'
         spanEndTimeShift: 2m
         spanStartTimeShift: -2m
-        tags:
-          - key: ""
-            value: ""
       tracesToMetrics:
         datasourceUid: prometheus
         queries:

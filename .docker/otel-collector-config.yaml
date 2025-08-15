@@ -7,21 +7,34 @@ receivers:
         endpoint: 0.0.0.0:4318
   filelog:
     include_file_path: true
-    include: [/var/log/service-a/*.log,/var/log/service-b/*.log,/var/log/service-c/*.log]   # Caminho dos arquivos de log
+    include: [/var/log/service-a/*.log,/var/log/service-b/*.log,/var/log/service-c/*.log] 
     start_at: end
     operators:
       - type: router
         routes:
-          - expr: 'body matches "^\\s*\\{"'  # tenta identificar JSON
+          - expr: 'body matches "^\\s*\\{"'  # JSON
             output: json
-          - expr: 'true'  # fallback: tudo que não for JSON
+          - expr: 'body matches "^[a-zA-Z0-9_.\\-]+=.*"'  # logfmt simples
+            output: logfmt_regex
+          - expr: 'true'  # fallback: tudo que não for JSON nem logfmt
             output: raw
       - type: json_parser
         id: json
         parse_from: body
         timestamp:
           parse_from: attributes.time
-          layout: '%Y-%m-%dT%H:%M:%S'
+          layout: '%Y-%m-%dT%H:%M:%S.%fZ'
+        severity:
+          parse_from: attributes.level
+        agent:
+          parse_from: attributes.agent
+      - type: regex_parser
+        id: logfmt_regex
+        parse_from: body
+        regex: 'level="(?P<level>[^\"]+)" time="(?P<time>[^\"]+)" caller="(?P<caller>[^\"]+)" msg="(?P<msg>[^\"]+)" traceId="(?P<traceId>[^\"]+)" spanId="(?P<spanId>[^\"]+)" service_name="(?P<service_name>[^\"]+)"'
+        timestamp:
+          parse_from: attributes.time
+          layout: '%Y-%m-%dT%H:%M:%S.%fZ'
         severity:
           parse_from: attributes.level
         agent:

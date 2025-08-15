@@ -4,6 +4,7 @@ go 1.24.2
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/exaring/otelpgx v0.9.3
 	github.com/gin-gonic/gin v1.10.1
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/spf13/viper v1.20.1
@@ -26,7 +27,6 @@ require (
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.2 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
-	github.com/exaring/otelpgx v0.9.3 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
@@ -76,4 +76,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/tradersclub/encelado-utilities-go/logger => github.com/tradersclub/encelado-utilities-go/logger v0.0.0-20250813164247-a786a56039de
+replace github.com/tradersclub/encelado-utilities-go/logger => github.com/tradersclub/encelado-utilities-go/logger v1.0.1-0.20250814184454-4cd9cd8fdf4a

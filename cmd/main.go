@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/tradersclub/encelado-utilities-go/logger"
 	config "github.com/tradersclub/poc-ecotel/configs"
 	"github.com/tradersclub/poc-ecotel/internal"
 	"github.com/tradersclub/poc-ecotel/pkg/ecotel"
@@ -24,9 +25,14 @@ func main() {
 	portGin := configs.WebServerPort
 	insecure := configs.InsecureOtelCollector
 	logPath := configs.LogPath
+	logFormat := configs.LogFormat
 
+	if logFormat == "json" {
+		log.DefaultEncoding = "json"
+	}
+	logger := log.NewLogger(false, "info")
 	ecotel.SetLogServiceName(serviceName)
-	ecotel.UseSlog()
+	ecotel.SetLogger(logger)
 
 	ctx := context.Background()
 
