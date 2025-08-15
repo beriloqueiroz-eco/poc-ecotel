@@ -10,18 +10,30 @@ receivers:
     include: [/var/log/service-a/*.log,/var/log/service-b/*.log,/var/log/service-c/*.log]   # Caminho dos arquivos de log
     start_at: end
     operators:
+      - type: router
+        routes:
+          - expr: 'body matches "^\\s*\\{"'  # tenta identificar JSON
+            output: json
+          - expr: 'true'  # fallback: tudo que não for JSON
+            output: raw
       - type: json_parser
+        id: json
         parse_from: body
         timestamp:
           parse_from: attributes.time
-          layout: '%Y-%m-%dT%H:%M:%S%Z'
+          layout: '%Y-%m-%dT%H:%M:%S'
         severity:
           parse_from: attributes.level
         agent:
           parse_from: attributes.agent
+      - type: move
+        id: raw
+        from: body
+        to: body  # apenas encaminha o log bruto
+  
 
 extensions:
-  health_check:
+  health_check: {}
   pprof:
     endpoint: :1888
   zpages:
@@ -40,7 +52,7 @@ exporters:
       insecure: true
 
 processors:
-  batch:
+  batch: {}
   resource:
     attributes:
       - action: insert

@@ -10,6 +10,7 @@ type conf struct {
 	ServiceName           string `mapstructure:"SERVICE_NAME"`
 	IsEnd                 int    `mapstructure:"END"`
 	InsecureOtelCollector bool   `mapstructure:"INSECURE_OTEL_COLLECTOR"`
+	LogPath               string `mapstructure:"LOG_PATH"`
 }
 
 func LoadConfig(paths []string) (*conf, error) {

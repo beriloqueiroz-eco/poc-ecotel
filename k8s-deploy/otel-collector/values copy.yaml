@@ -35,19 +35,12 @@ config:
     filelog:
       include_file_path: true
       include: 
-        - /var/log/containers/*
-        - /var/log/pods/**/*
-        - /var/lib/docker/containers/*
+        - /var/log/containers/*.log
+        - /var/log/pods/**/*.log
+        - /var/lib/docker/containers/*.log
       start_at: end
       operators:
-        - type: router
-          routes:
-            - expr: 'body matches "^\\s*\\{"'  # tenta identificar JSON
-              output: json
-            - expr: 'true'  # fallback: tudo que não for JSON
-              output: raw
         - type: json_parser
-          id: json
           parse_from: body
           timestamp:
             parse_from: attributes.time
@@ -56,10 +49,6 @@ config:
             parse_from: attributes.level
           agent:
             parse_from: attributes.agent
-        - type: move
-          id: raw
-          from: body
-          to: body  # apenas encaminha o log bruto
   extensions:
     health_check: {}
     pprof:
@@ -68,13 +57,13 @@ config:
       endpoint: :55679      
   exporters:
     otlp/jaeger:
-      endpoint: "http://jaeger-collector.monitoring.svc.cluster.local:4317"
+      endpoint: "jaeger-collector:4317"
       tls:
         insecure: true
     prometheus:
       endpoint: "0.0.0.0:8889"
     otlphttp/logs:
-      endpoint: "http://loki-write.monitoring.svc.cluster.local:3100/otlp"
+      endpoint: "http://loki-write:3100/otlp"
       tls:
         insecure: true
   processors:

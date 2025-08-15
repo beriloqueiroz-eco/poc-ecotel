@@ -22,9 +22,9 @@ datasources:
         datasourceUid: prometheus
         queries:
           - name: Metrics By Trace
-            query: '{trace_id="$${__trace.traceId}"}'
+            query: '{traceId="$${__trace.traceId}"}'
           - name: Metrics By Span
-            query: '{span_id="$${__span.spanId}"}'
+            query: '{spanId="$${__span.spanId}"}'
         spanEndTimeShift: 2m
         spanStartTimeShift: -2m
   - name: Prometheus

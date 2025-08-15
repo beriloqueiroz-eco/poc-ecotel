@@ -72,7 +72,7 @@ func (o *MetricEcotel) GinMetricsMiddleware() gin.HandlerFunc {
 		c.Next()
 		duration := time.Since(start).Seconds()
 
-		// Extrai trace_id e span_id do contexto, se houver
+		// Extrai traceId e spanId do contexto, se houver
 		spanCtx := trace.SpanContextFromContext(c.Request.Context())
 		traceID := ""
 		spanID := ""
@@ -89,10 +89,10 @@ func (o *MetricEcotel) GinMetricsMiddleware() gin.HandlerFunc {
 			attribute.Int("status", c.Writer.Status()),
 		}
 		if traceID != "" {
-			attrs = append(attrs, attribute.String("trace_id", traceID))
+			attrs = append(attrs, attribute.String("traceId", traceID))
 		}
 		if spanID != "" {
-			attrs = append(attrs, attribute.String("span_id", spanID))
+			attrs = append(attrs, attribute.String("spanId", spanID))
 		}
 
 		requestCounter.Add(c.Request.Context(), 1, metric.WithAttributes(attrs...))
@@ -100,19 +100,19 @@ func (o *MetricEcotel) GinMetricsMiddleware() gin.HandlerFunc {
 
 		methodAttrs := []attribute.KeyValue{attribute.String("method", c.Request.Method)}
 		if traceID != "" {
-			methodAttrs = append(methodAttrs, attribute.String("trace_id", traceID))
+			methodAttrs = append(methodAttrs, attribute.String("traceId", traceID))
 		}
 		if spanID != "" {
-			methodAttrs = append(methodAttrs, attribute.String("span_id", spanID))
+			methodAttrs = append(methodAttrs, attribute.String("spanId", spanID))
 		}
 		methodCounter.Add(c.Request.Context(), 1, metric.WithAttributes(methodAttrs...))
 
 		routeAttrs := []attribute.KeyValue{attribute.String("route", c.FullPath())}
 		if traceID != "" {
-			routeAttrs = append(routeAttrs, attribute.String("trace_id", traceID))
+			routeAttrs = append(routeAttrs, attribute.String("traceId", traceID))
 		}
 		if spanID != "" {
-			routeAttrs = append(routeAttrs, attribute.String("span_id", spanID))
+			routeAttrs = append(routeAttrs, attribute.String("spanId", spanID))
 		}
 		routeCounter.Add(c.Request.Context(), 1, metric.WithAttributes(routeAttrs...))
 

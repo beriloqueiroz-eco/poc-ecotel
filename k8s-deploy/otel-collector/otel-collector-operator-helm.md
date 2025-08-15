@@ -17,5 +17,5 @@ helm install otel-collector open-telemetry/opentelemetry-collector -n monitoring
 helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 helm repo update
 helm install otel-collector open-telemetry/opentelemetry-collector --namespace monitoring -f values.yaml
-kubectl apply -f otel-collector-svc.yaml
+kubectl apply -f k8s-deploy/otel-collector/otel-collector-svc.yaml
 ```

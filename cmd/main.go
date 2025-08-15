@@ -23,13 +23,14 @@ func main() {
 	collectorUrl := configs.OtelExporterEndpoint
 	portGin := configs.WebServerPort
 	insecure := configs.InsecureOtelCollector
+	logPath := configs.LogPath
 
 	ecotel.SetLogServiceName(serviceName)
 	ecotel.UseSlog()
 
 	ctx := context.Background()
 
-	err = redirectStdoutStderr("/var/log/app.log")
+	err = redirectStdoutStderr(logPath)
 	if err != nil {
 		ecotel.Error(ctx, "Error redirecting stdout/stderr:", err)
 	}
