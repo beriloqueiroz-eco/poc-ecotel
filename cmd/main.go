@@ -47,29 +47,15 @@ func main() {
 	otelMetrics := ecotel.NewMetricEcotel(collectorUrl, serviceName)
 	otelMetrics.InitMeterProvider(insecure)
 	ginServer.Use(otelMetrics.GinMetricsMiddleware())
-	dbConfig := internal.DBConfig{
-		Host:     "db",
-		Port:     5432,
-		Database: "database",
-		User:     "user",
-		Password: "password",
-		SSLMode:  "disable",
-	}
 
-	url := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
-		dbConfig.User,
-		dbConfig.Password,
-		dbConfig.Host,
-		dbConfig.Port,
-		dbConfig.Database,
-		dbConfig.SSLMode)
+	url := "postgres://user:password@db:5432/database?sslmode=disable"
 
 	pool, err := otelTracer.InitOtelPgxTracer(ctx, url)
 	if err != nil {
 		ecotel.Error(ctx, "Error initializing database connection pool:", err)
 		panic(err)
 	}
-	db, err := internal.NewDB(ctx, dbConfig, pool)
+	db, err := internal.NewDB(ctx, pool)
 	if err != nil {
 		ecotel.Error(ctx, "Error connecting to database:", err)
 		panic(err)

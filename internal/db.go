@@ -20,7 +20,7 @@ type DBConfig struct {
 	SSLMode  string
 }
 
-func NewDB(ctx context.Context, cfg DBConfig, pool *pgxpool.Pool) (*DB, error) {
+func NewDB(ctx context.Context, pool *pgxpool.Pool) (*DB, error) {
 	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 	return &DB{
 		Pool:    pool,

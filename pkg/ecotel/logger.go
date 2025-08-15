@@ -69,7 +69,7 @@ func Info(ctx context.Context, msg string, fields ...interface{}) {
 	logger.Info(msg,
 		append(fields,
 			"traceId", traceId,
-			"spanID", spanId,
+			"spanId", spanId,
 			"service_name", logServiceName,
 		)...,
 	)
@@ -100,7 +100,7 @@ func Error(ctx context.Context, msg string, fields ...interface{}) {
 	logger.Error(msg,
 		append(fields,
 			"traceId", traceId,
-			"spanID", spanId,
+			"spanId", spanId,
 			"service_name", logServiceName,
 		)...,
 	)
@@ -131,7 +131,7 @@ func Debug(ctx context.Context, msg string, fields ...interface{}) {
 	logger.Debug(msg,
 		append(fields,
 			"traceId", traceId,
-			"spanID", spanId,
+			"spanId", spanId,
 			"service_name", logServiceName,
 		)...,
 	)
@@ -162,7 +162,7 @@ func Warn(ctx context.Context, msg string, fields ...interface{}) {
 	logger.Warn(msg,
 		append(fields,
 			"traceId", traceId,
-			"spanID", spanId,
+			"spanId", spanId,
 			"service_name", logServiceName,
 		)...,
 	)
@@ -193,7 +193,7 @@ func Fatal(ctx context.Context, msg string, fields ...interface{}) {
 	logger.Fatal(msg,
 		append(fields,
 			"traceId", traceId,
-			"spanID", spanId,
+			"spanId", spanId,
 			"service_name", logServiceName,
 		)...,
 	)
