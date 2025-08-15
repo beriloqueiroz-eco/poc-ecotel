@@ -58,12 +58,12 @@ func TestLoggerWithContextWithTraceOtelProvider(t *testing.T) {
 		if l.lastFields[i] == "traceId" && l.lastFields[i+1] != "" {
 			foundTrace = true
 		}
-		if l.lastFields[i] == "service.name" && l.lastFields[i+1] == "service-test" {
+		if l.lastFields[i] == "service_name" && l.lastFields[i+1] == "service-test" {
 			foundService = true
 		}
 	}
 	if !foundTrace || !foundService {
-		t.Errorf("traceId or service.name not found in fields")
+		t.Errorf("traceId or service_name not found in fields")
 	}
 
 	Error(ctx, "error-msg")
@@ -98,12 +98,12 @@ func TestLoggerWithContextWithParametersByContextValue(t *testing.T) {
 		if l.lastFields[i] == "traceId" && l.lastFields[i+1] != "" {
 			foundTrace = true
 		}
-		if l.lastFields[i] == "service.name" && l.lastFields[i+1] == "service-test" {
+		if l.lastFields[i] == "service_name" && l.lastFields[i+1] == "service-test" {
 			foundService = true
 		}
 	}
 	if !foundTrace || !foundService {
-		t.Errorf("traceId or service.name not found in fields")
+		t.Errorf("traceId or service_name not found in fields")
 	}
 
 	Error(ctx, "error-msg")
