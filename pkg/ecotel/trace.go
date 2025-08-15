@@ -39,7 +39,10 @@ func NewTraceEcotel(collectorUrl, serviceName string) *TraceEcotel {
 }
 
 func (o *TraceEcotel) InitTracerProvider(ctx context.Context, insecure bool) (func(context.Context) error, error) {
-	otel.SetTextMapPropagator(propagation.TraceContext{})
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
 	secureOption := otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
 	if insecure {
 		secureOption = otlptracegrpc.WithInsecure()
