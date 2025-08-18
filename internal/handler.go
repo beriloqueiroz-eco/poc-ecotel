@@ -33,7 +33,7 @@ func (h *HelloHandler) Handle(c *gin.Context) {
 	// Consulta simples no banco para mapear no trace
 	if h.Repo != nil {
 		if result, err := h.Repo.SimpleQuery(c.Request.Context()); err == nil {
-			ecotel.Info(c.Request.Context(), fmt.Sprintf("DB SimpleQuery result: %d", result))
+			ecotel.Info(c.Request.Context(), fmt.Sprintf("DB SimpleQuery result: %v", result))
 			output.Cod = result
 		} else {
 			ecotel.Error(c.Request.Context(), fmt.Sprintf("DB SimpleQuery error: %v", err))

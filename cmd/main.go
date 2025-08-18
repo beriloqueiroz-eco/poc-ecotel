@@ -27,13 +27,15 @@ func main() {
 	logPath := configs.LogPath
 	logFormat := configs.LogFormat
 
-	if logFormat == "json" {
-		log.DefaultEncoding = "json"
-	}
+	// if logFormat == "json" {
+	// 	log.DefaultEncoding = "json"
+	// }
 	logger := log.NewLogger(false, "info")
 	ecotel.SetLogServiceName(serviceName)
 	ecotel.SetLogger(logger)
-
+	if logFormat == "json" {
+		ecotel.UseSlog()
+	}
 	ctx := context.Background()
 
 	err = redirectStdoutStderr(logPath)

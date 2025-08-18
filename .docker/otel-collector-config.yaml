@@ -73,7 +73,7 @@ processors:
         value: otel-collector
       - action: insert
         key: loki.attribute.labels
-        value: service_name
+        value: service_name,agent
   transform:
     log_statements:
       - context: log
