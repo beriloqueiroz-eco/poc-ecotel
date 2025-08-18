@@ -7,15 +7,15 @@ nameOverride: otel-collector
 
 # Recurso recomendado para evitar warnings do Helm
 resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: "250m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
 
 image:
-  repository: otel/opentelemetry-collector-contrib
+  repository: otel/opentelemetry-collector-k8s
   tag: ""
 
 mode: daemonset
@@ -56,31 +56,11 @@ config:
           routes:
             - expr: 'body matches "^\\s*\\{"'  # JSON
               output: json
-            - expr: 'body matches "^[a-zA-Z0-9_.\\-]+=.*"'  # logfmt simples
-              output: logfmt_regex
             - expr: 'true'  # fallback: tudo que não for JSON nem logfmt
               output: raw
         - type: json_parser
           id: json
           parse_from: body
-          timestamp:
-            parse_from: attributes.time
-            layout: '%Y-%m-%dT%H:%M:%S.%fZ'
-          severity:
-            parse_from: attributes.level
-          agent:
-            parse_from: attributes.agent
-        - type: regex_parser
-          id: logfmt_regex
-          parse_from: body
-          regex: 'level="(?P<level>[^\"]+)" time="(?P<time>[^\"]+)" caller="(?P<caller>[^\"]+)" msg="(?P<msg>[^\"]+)" traceId="(?P<traceId>[^\"]+)" spanId="(?P<spanId>[^\"]+)" service_name="(?P<service_name>[^\"]+)"'
-          timestamp:
-            parse_from: attributes.time
-            layout: '%Y-%m-%dT%H:%M:%S.%fZ'
-          severity:
-            parse_from: attributes.level
-          agent:
-            parse_from: attributes.agent
         - type: move
           id: raw
           from: body
@@ -104,14 +84,6 @@ config:
         insecure: true
   processors:
     batch: {}
-    resource:
-      attributes:
-        - action: insert
-          key: agent
-          value: otel-collector
-        - action: insert
-          key: loki.attribute.labels
-          value: service_name
     transform:
       log_statements:
         - context: log
@@ -130,5 +102,5 @@ config:
         exporters: [prometheus]
       logs:
         receivers: [filelog]
+        processors: [transform, batch]
         exporters: [otlphttp/logs]
-        processors: [transform, batch, resource]
