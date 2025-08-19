@@ -15,7 +15,7 @@ resources:
     memory: "512Mi"
 
 image:
-  repository: otel/opentelemetry-collector-k8s
+  repository: otel/opentelemetry-collector-contrib
   tag: ""
 
 mode: daemonset
@@ -79,16 +79,16 @@ config:
     prometheus:
       endpoint: "0.0.0.0:8889"
     otlphttp/logs:
-      endpoint: "http://loki-write.monitoring.svc.cluster.local:3100/otlp"
+      endpoint: "http://loki.monitoring.svc.cluster.local:3100/otlp"
       tls:
         insecure: true
   processors:
     batch: {}
     resource:
-    attributes:
-      - action: insert
-        key: agent
-        value: otel-collector
+      attributes:
+        - action: insert
+          key: agent
+          value: otel-collector
     transform:
       log_statements:
         - context: log

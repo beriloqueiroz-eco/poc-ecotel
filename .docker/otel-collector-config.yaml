@@ -19,6 +19,9 @@ receivers:
       - type: json_parser
         id: json
         parse_from: body
+        timestamp:
+          parse_from: attributes.time
+          layout: '%Y-%m-%dT%H:%M:%S.%fZ'
       - type: move
         id: raw
         from: body
