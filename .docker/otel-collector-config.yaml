@@ -45,6 +45,11 @@ exporters:
 
 processors:
   batch: {}
+  resource:
+    attributes:
+      - action: insert
+        key: agent
+        value: otel-collector
   transform:
     log_statements:
       - context: log
@@ -65,4 +70,4 @@ service:
     logs:
       receivers: [filelog]
       exporters: [otlphttp/logs]
-      processors: [transform, batch]
+      processors: [transform, resource, batch]

@@ -84,6 +84,11 @@ config:
         insecure: true
   processors:
     batch: {}
+    resource:
+    attributes:
+      - action: insert
+        key: agent
+        value: otel-collector
     transform:
       log_statements:
         - context: log
@@ -102,5 +107,5 @@ config:
         exporters: [prometheus]
       logs:
         receivers: [filelog]
-        processors: [transform, batch]
+        processors: [transform, resource, batch]
         exporters: [otlphttp/logs]
